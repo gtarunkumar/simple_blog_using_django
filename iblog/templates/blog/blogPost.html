@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %} Blog Post {% endblock title %}
+
+
+{% block blogactive%} active {% endblock blogactive%}
+
+{% block body %}
+{% load humanize %}
+{% comment %} {% load extras %} {% endcomment %}
+
+<div class="container">
+    <div class="blog-post my-3">
+        <h2 class="blog-post-title">{{post.title}}</h2>
+        <p class="blog-post-meta">{{post.timeStamp}} by {{post.author}}</a></p>
+
+        <p>{{post.content|safe}}</p>
+        <hr>
+    </div>
+    <div class="container my-2">
+        <h2> Comments ({{comments.count}})</h2>
+        <div class="my-2">
+            {% if user.is_authenticated %}
+            <form action="/blog/postComment" method="post">
+                {% csrf_token %}
+                <div class="form-group my-2">
+                    <label for="comment">Post Comment </label>
+                    <input type="text" class="form-control" name="comment" id="comment"
+                        placeholder="Enter comment here">
+                </div>
+                <input type="hidden" name="parentSno" value="">
+                <input type="hidden" name="postSno" value="{{post.sno}}">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            {% else %}
+            <p>Please login to comment!</p>
+            {% endif %}
+        </div>
+        {% for comment in comments %}
+        <div class="row my-3 container">
+        {% comment %} <div class="col-md-1  ">
+            <img class="rounded mx-auto d-block w-10 border border-dark p-2" src="/static/img/user.png" alt="user">
+        </div> {% endcomment %}
+            <div class="col-md-11">
+                <b>{{comment.user.username}} </b> <span class="badge bg-secondary"><i>{{comment.timestamp | naturaltime}}</i></span>
+                <div> {{comment.comment}} </div>
+           </div>
+            {% if user.is_authenticated %}
+        <div class="container mx-0 my-1">
+                <a class="btn btn-primary line-height=1.3" data-bs-toggle="collapse" href="#replyBox{{comment.sno}}" role="button"
+                    aria-expanded="false" aria-controls="collapseExample">
+                    Reply
+                </a>
+         
+            <div class="collapse" id="replyBox{{comment.sno}}">
+                <div class="card card-body my-2">
+                    <form action="/blog/postComment" method="post">
+                        {% csrf_token %}
+                        <div class="form-group my-2">
+                            <label for="comment">Post a Comment </label>
+                            <input type="text" class="form-control" name="comment" id="comment"
+                                placeholder="Enter comment here">
+                                <input type="hidden" name="parentSno" value="{{comment.sno}}">
+                        </div>
+                        <input type="hidden" name="postSno" value="{{post.sno}}">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="repliesvcontainer my-1">
+                {% for key,value in replyDict.items %}
+                    {% if key == comment.sno %}
+                    
+                    {% for reply in value %}
+                        <div class="col-md-11">
+                            <b>{{reply.user.username}} </b> <span class="badge bg-secondary"><i>{{reply.timestamp | naturaltime}}</i></span>
+                            <div> {{reply.comment}} </div>
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}

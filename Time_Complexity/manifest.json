@@ -1,0 +1,16 @@
+{
+    "manifest_version": 2,
+    "name": "Algos Time Complexity",
+    "version":"1.0.0",
+    "description": "An extension which displays a random algorithm Time Complexity",
+    "browser_action": {
+        "default_popup":"popup.html"
+    },
+    
+    "background": ["Content.js"],
+    "permissions" : [
+        "activeTab",
+        "<all_urls>",
+        "tabs"
+    ]
+}
